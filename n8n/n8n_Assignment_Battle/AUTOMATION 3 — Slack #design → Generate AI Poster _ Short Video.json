@@ -1,0 +1,369 @@
+{
+  "name": "AUTOMATION 3 — Slack #design → Generate AI Poster / Short Video",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "video",
+        "modelId": {
+          "__rl": true,
+          "value": "sora-2",
+          "mode": "list",
+          "cachedResultName": "SORA-2"
+        },
+        "prompt": "={{ $json.prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -496,
+        1392
+      ],
+      "id": "f1f2ce7d-29c1-406a-b205-ddcc650ea0df",
+      "name": "Generate a video",
+      "credentials": {
+        "openAiApi": {
+          "id": "bsk3QAVRI09420TL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C0A1RRUEWJX",
+          "mode": "list",
+          "cachedResultName": "design_product_n8n"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        -80
+      ],
+      "id": "bf58d04f-d30f-4d8d-84a5-bd905c476fde",
+      "name": "Slack Trigger — Capture Channel Messages",
+      "webhookId": "ee2e786e-1b3e-43da-bc05-5515c20e1a78",
+      "credentials": {
+        "slackApi": {
+          "id": "ypRt8IK0EFDcOcJj",
+          "name": "Slack API Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=`You are an assistant that classifies the message as either an \"image\" or \"video\" request.\n\nUser message: \"{{ $json.text }}\"\n\nReturn ONLY valid JSON, no markdown or code fences.\n\nRules:\n- If the message includes words like \"poster\", \"banner\", \"design\", \"image\", \"picture\", \"template\", \"photo\" → set type = \"image\"\n- If the message includes words like \"video\", \"clip\", \"animation\", \"reel\", \"motion\" → set type = \"video\"\n- Otherwise guess based on context, but avoid always defaulting to \"video\".\n\nUse the user's message text exactly for \"prompt\".\n\nFormat:\n{\"type\":\"image\",\"prompt\":\"<user message>\"}\nor\n{\"type\":\"video\",\"prompt\":\"<user message>\"}\n`\n"
+            },
+            {
+              "role": "system",
+              "content": "=You are a classifier that determines whether a Slack user wants to create an image or a video. \n\nDo NOT change, summarize, or rephrase the user’s message. \n\nYou must return valid JSON only with these two fields:\n\n{\n  \"type\": \"image\" | \"video\",\n  \"prompt\": \"<the exact user message>\"\n}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        -80
+      ],
+      "id": "25de47d2-9d06-4486-8288-718f02046cab",
+      "name": "OpenAI — Classify Request (Image or Video)",
+      "credentials": {
+        "openAiApi": {
+          "id": "bsk3QAVRI09420TL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the JSON string returned from the OpenAI node\nconst raw = $json.output[0].content[0].text;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\nreturn JSON.parse(cleaned);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        -80
+      ],
+      "id": "64bfcf74-b06f-434e-976e-e97f61dca33b",
+      "name": "Code — Parse JSON Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9aa7454e-eba8-4b1d-802a-606f62c20c9c",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "image",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "060ff186-7f04-4bff-86a8-339f28ce93d4",
+      "name": "IF — Check if Request Type is Image"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "model": "dall-e-2",
+        "prompt": "={{ $json.prompt }}",
+        "options": {
+          "size": "1024x1024"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -112
+      ],
+      "id": "8fb44ff2-fe6f-4f1a-b831-eb38f352741e",
+      "name": "OpenAI — Generate Image",
+      "credentials": {
+        "openAiApi": {
+          "id": "bsk3QAVRI09420TL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "options": {
+          "channelId": "C0A1RRUEWJX",
+          "initialComment": "=`🖼️ Here’s your generated image for: {{ $('IF — Check if Request Type is Image').item.json.prompt }}`"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        336,
+        -112
+      ],
+      "id": "6b947a8f-2e8c-4984-9a97-6ee808ad80b3",
+      "name": "Slack — Post Generated Image",
+      "webhookId": "907dd8b4-6d65-4bcb-937f-ffa75e19a5de",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "jJHwpreszPm49KP2",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=`Create a short 5–10 second video concept for: \"{{ $json.prompt }}\". \nReturn JSON only:\n{\"script\":\"text to narrate\",\"visuals\":\"describe the visual scene\"}`\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        32,
+        112
+      ],
+      "id": "a3855bff-1cb8-4373-b1fb-c73c34f7b039",
+      "name": "OpenAI — Generate Video Script & Visuals",
+      "credentials": {
+        "openAiApi": {
+          "id": "bsk3QAVRI09420TL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the JSON string returned from the OpenAI node\nconst raw = $json.output[0].content[0].text;\nconst cleaned = raw.replace(/```json|```/g, '').trim();\nreturn JSON.parse(cleaned);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        112
+      ],
+      "id": "bdb4894f-0cfc-4da9-8dd3-cafb43cce3f9",
+      "name": "Code — Format Video Concept for Slack"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A1RRUEWJX",
+          "mode": "list",
+          "cachedResultName": "design_product_n8n"
+        },
+        "text": "=`🎬 Here’s your video concept!\n\n*Script:* {{ $json.script }} 🎨 \n\n*Visuals:* {{ $json.visuals }}`\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        112
+      ],
+      "id": "82ca6b17-3855-4dc1-8bc4-728600b03cc9",
+      "name": "Slack — Post Video Concept",
+      "webhookId": "bee3929c-a60e-4496-a56b-68d376997428",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "jJHwpreszPm49KP2",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Slack Trigger — Capture Channel Messages": {
+      "main": [
+        [
+          {
+            "node": "OpenAI — Classify Request (Image or Video)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI — Classify Request (Image or Video)": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse JSON Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse JSON Output": {
+      "main": [
+        [
+          {
+            "node": "IF — Check if Request Type is Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Check if Request Type is Image": {
+      "main": [
+        [
+          {
+            "node": "OpenAI — Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI — Generate Video Script & Visuals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI — Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Slack — Post Generated Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI — Generate Video Script & Visuals": {
+      "main": [
+        [
+          {
+            "node": "Code — Format Video Concept for Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Format Video Concept for Slack": {
+      "main": [
+        [
+          {
+            "node": "Slack — Post Video Concept",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1ee301b5-2dbf-4191-beae-bc1c23f7171f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f9907f7735195927389e6653395cb98a2dfc5ecbdd5641aa84ccd8bc13f9a21f"
+  },
+  "id": "d09RJff0HzXE7u8S",
+  "tags": []
+}

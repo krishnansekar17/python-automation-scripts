@@ -1,0 +1,191 @@
+{
+  "name": "AUTOMATION 2 — Support Email → Slack + Auto Reply",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -608,
+        -144
+      ],
+      "id": "fab55d27-59fc-43f8-a623-93905e1fc549",
+      "name": "Gmail Trigger When New Email Arrives",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "M6ggjhIDaLpnYKnz",
+          "name": "Gmail Account krishnamscit17"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5ce652c4-e8d2-4182-ab3b-79b2f68a8a6e",
+              "leftValue": "={{ $json.Subject && ($json.Subject.toLowerCase().includes('help') || $json.Subject.toLowerCase().includes('support')) }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        -144
+      ],
+      "id": "c38dadf7-202e-4626-93be-60a80e94f469",
+      "name": "If - Subject line \"Help\" or \"Support\""
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A1RR9M3AP",
+          "mode": "list",
+          "cachedResultName": "support_product_n8n"
+        },
+        "text": "={{`📩 *New Support Ticket*\\nFrom: ${$json[\"From\"]}\\nSubject: ${$json[\"Subject\"]}\\n\\n${$json[\"snippet\"]}`}}\n",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -112,
+        -160
+      ],
+      "id": "832bcd66-0c41-44c8-a4bd-86dd248fbeaf",
+      "name": "Slack — Send Message to #support",
+      "webhookId": "2fe574c7-d54f-4622-ab3a-b835294d8a72",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "jJHwpreszPm49KP2",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -160
+      ],
+      "id": "0f9a0a81-ed4e-4e17-b4ed-de713c80e7b9",
+      "name": "Wait — 10 Seconds Before Reply",
+      "webhookId": "2db07d07-4b9c-403e-ac4f-94530eee9a37"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('If - Subject line \"Help\" or \"Support\"').item.json.id }}",
+        "emailType": "text",
+        "message": "=Thank you for bringing your query to our support team.\n\nOur experts are reviewing your request and will get back to you shortly.\n\n— Team Support 🤝",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        -160
+      ],
+      "id": "ebbd27cc-22eb-4c48-84d2-4dee03ceb92f",
+      "name": "Gmail — Reply Message to Same Client",
+      "webhookId": "6a574345-e686-475b-82ff-e8681c4049d8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "M6ggjhIDaLpnYKnz",
+          "name": "Gmail Account krishnamscit17"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger When New Email Arrives": {
+      "main": [
+        [
+          {
+            "node": "If - Subject line \"Help\" or \"Support\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If - Subject line \"Help\" or \"Support\"": {
+      "main": [
+        [
+          {
+            "node": "Slack — Send Message to #support",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack — Send Message to #support": {
+      "main": [
+        [
+          {
+            "node": "Wait — 10 Seconds Before Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait — 10 Seconds Before Reply": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Reply Message to Same Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "71a8fae5-fc82-42ab-80ab-f18e7997b7d3",
+  "meta": {
+    "instanceId": "f9907f7735195927389e6653395cb98a2dfc5ecbdd5641aa84ccd8bc13f9a21f"
+  },
+  "id": "apgfh0VoTX29SNRf",
+  "tags": []
+}

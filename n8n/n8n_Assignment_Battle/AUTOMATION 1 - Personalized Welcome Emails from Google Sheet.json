@@ -1,0 +1,232 @@
+{
+  "name": "AUTOMATION 1 - Personalized Welcome Emails from Google Sheet",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        -64
+      ],
+      "id": "9c421df1-49e0-4ba5-a8ae-51e88728fe54",
+      "name": "Wait for 5 Seconds",
+      "webhookId": "98b7120c-8e45-49ae-aa9d-1b5b16fa748d"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "145_nGsh6oCdpCf0XGXZ0stcUzENV0lQFO2eYtUP4bR8",
+          "mode": "list",
+          "cachedResultName": "Customer Email List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/145_nGsh6oCdpCf0XGXZ0stcUzENV0lQFO2eYtUP4bR8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 371992988,
+          "mode": "list",
+          "cachedResultName": "Personalized_Welcome_Emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/145_nGsh6oCdpCf0XGXZ0stcUzENV0lQFO2eYtUP4bR8/edit#gid=371992988"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -928,
+        -48
+      ],
+      "id": "c06e7e30-2bf9-4c6c-bc0e-0a49f5b4d204",
+      "name": "Get Customer Details from Google Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NnlXvNVkA7YuRqPM",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "feb325ef-7c78-499f-af3b-6e622edf2902",
+              "name": "email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "b35338cd-5e40-4b02-9868-1363093d7b8b",
+              "name": "subject",
+              "value": "=Welcome to  {{ $json.Product }} Family!",
+              "type": "string"
+            },
+            {
+              "id": "90adbe85-66bf-4b9f-87a0-267b745b992d",
+              "name": "=message",
+              "value": "={{(() => {\n  const name = $json[\"Name\"];\n  const product = $json[\"Product\"];\n  const logoUrl = \"https://socialeagle.ai/se-logo-horizontal.png\"; // replace with actual logo URL\n\n  // Define templates for each product\n  const templates = {\n    \"Audio Summarizer\": `\n      <div style=\"font-family:Arial, sans-serif;line-height:1.6;color:#333;\">\n        <img src=\"${logoUrl}\" alt=\"Brand Logo\" style=\"width:400px;margin-bottom:20px;\">\n        <h2>Welcome to the Audio Summarizer Community, ${name}!</h2>\n        <p>We're thrilled to have you join our family of creators who simplify audio content like never before. Audio Summarizer helps you turn hours of recordings into concise summaries effortlessly.</p>\n        <p>Our team has built this tool to empower professionals like you to save time and stay focused on what truly matters — creativity and productivity.</p>\n        <p>Feel free to explore tutorials and resources inside your dashboard to get started.</p>\n        <p>Warm regards,<br><strong>Team Audio Summarizer</strong></p>\n      </div>`,\n\n    \"Invoice Tool\": `\n      <div style=\"font-family:Arial, sans-serif;line-height:1.6;color:#333;\">\n        <img src=\"${logoUrl}\" alt=\"Brand Logo\" style=\"width:400px;margin-bottom:20px;\">\n        <h2>Hello ${name}, welcome to Invoice Tool!</h2>\n        <p>Managing invoices just got easier. With our automated invoicing platform, you can generate, track, and manage payments in just a few clicks.</p>\n        <p>We’re excited to help you simplify your workflow and maintain a clear financial overview — all in one place.</p>\n        <p>Head to your account to create your first invoice now!</p>\n        <p>Best,<br><strong>Invoice Tool Team</strong></p>\n      </div>`,\n\n    \"Video Maker\": `\n      <div style=\"font-family:Arial, sans-serif;line-height:1.6;color:#333;\">\n        <img src=\"${logoUrl}\" alt=\"Brand Logo\" style=\"width:400px;margin-bottom:20px;\">\n        <h2>Welcome aboard, ${name}!</h2>\n        <p>You're now part of the Video Maker community — where ideas come to life in motion. Create stunning videos easily with our drag-and-drop editor and rich media library.</p>\n        <p>Whether it's social media reels, tutorials, or marketing clips, Video Maker gives you the creative power you deserve.</p>\n        <p>Start your journey today and let your visuals do the talking!</p>\n        <p>Cheers,<br><strong>The Video Maker Team</strong></p>\n      </div>`,\n\n    \"Photo Editor\": `\n      <div style=\"font-family:Arial, sans-serif;line-height:1.6;color:#333;\">\n        <img src=\"${logoUrl}\" alt=\"Brand Logo\" style=\"width:400px;margin-bottom:20px;\">\n        <h2>Hi ${name}, welcome to the Photo Editor family!</h2>\n        <p>We’re thrilled to have you join a vibrant community of artists, designers, and editors who bring visuals to life. Photo Editor is your creative companion for every pixel-perfect project.</p>\n        <p>Experiment with powerful tools, effects, and AI enhancements — all designed to make your photos stand out effortlessly.</p>\n        <p>Log in and begin transforming your creativity into masterpieces today!</p>\n        <p>With appreciation,<br><strong>Photo Editor Support Team</strong></p>\n      </div>`\n  };\n\n  // Return the email message according to the product\n  return templates[product] || `<p>Hello ${name}, welcome!</p>`;\n})()}}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -480,
+        -64
+      ],
+      "id": "362e3e7a-d194-47d5-8ef3-5038c911c148",
+      "name": "Personalized Message Compose"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        -48
+      ],
+      "id": "5d2525f6-bd47-4010-a912-e682cafea152",
+      "name": "Manual Trigger — Start Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -720,
+        -48
+      ],
+      "id": "60c72841-9888-4db8-807c-0ce77612c585",
+      "name": "Send One Customer Row (Split in Batches)"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.message }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -64,
+        -64
+      ],
+      "id": "550e5619-cac9-4c08-bd3d-25a9f3bc60fd",
+      "name": "Send Personalized Email to Customer",
+      "webhookId": "3b67cfa3-2686-42d3-bb77-181e5eabdf8b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "M6ggjhIDaLpnYKnz",
+          "name": "Gmail Account krishnamscit17"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Loop → Send One Customer Row",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        160
+      ],
+      "id": "587744b1-ab5d-441b-a965-d3558262ecba"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait for 5 Seconds": {
+      "main": [
+        [
+          {
+            "node": "Send Personalized Email to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Customer Details from Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send One Customer Row (Split in Batches)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personalized Message Compose": {
+      "main": [
+        [
+          {
+            "node": "Wait for 5 Seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger — Start Workflow": {
+      "main": [
+        [
+          {
+            "node": "Get Customer Details from Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send One Customer Row (Split in Batches)": {
+      "main": [
+        [
+          {
+            "node": "Personalized Message Compose",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop → Send One Customer Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop → Send One Customer Row": {
+      "main": [
+        [
+          {
+            "node": "Send One Customer Row (Split in Batches)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6474f856-f807-4f88-90f5-7e385af461b2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f9907f7735195927389e6653395cb98a2dfc5ecbdd5641aa84ccd8bc13f9a21f"
+  },
+  "id": "ddXfiqfWZMQDsSl2",
+  "tags": []
+}
