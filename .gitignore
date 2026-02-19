@@ -1,0 +1,55 @@
+# Environment variables (NEVER commit these)
+.env
+.env.local
+.env.production
+.env.staging
+*.env
+
+# API keys and secrets
+secrets.json
+credentials.json
+service-account.json
+*-credentials.json
+*-secret.json
+
+# n8n exports with credentials
+*-with-credentials.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+package-lock.json
+
+# Misc
+*.bak
+*.tmp
